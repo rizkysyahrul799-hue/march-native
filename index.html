@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>March - Native Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        :root {
+            --md-surface: #14161D;           
+            --md-card: #1E212A;              
+            --md-text-main: #F8FAFC;         
+            --md-text-muted: #94A3B8;        
+            --md-border: #2D323F;            
+            --md-primary: #E2E8F0;           
+            --md-track-bg: #2D323F;          
+            --md-danger: #FCA5A5;
+            --md-danger-container: rgba(252, 165, 165, 0.08);
+            --md-online: #4ADE80;
+            --md-offline: #F87171;
+        }
+
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--md-surface);
+            color: var(--md-text-main);
+            padding: calc(env(safe-area-inset-top, 0px) + 24px) 16px 32px;
+            display: flex; justify-content: center;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; }
+
+        .page-view { display: none; flex-direction: column; gap: 16px; animation: graphiteFade 0.2s ease-out; }
+        .page-view.active { display: flex; }
+        @keyframes graphiteFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .top-app-bar { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 0; }
+        .brand-wrapper { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+        
+        .chibi-logo {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 1px solid var(--md-border);
+            background-color: #242731;
+        }
+
+        .brand-title h1 { 
+            font-family: 'Product Sans', 'Google Sans', 'Plus Jakarta Sans', sans-serif;
+            font-size: 34px; 
+            font-weight: 700; 
+            letter-spacing: -0.8px; 
+            color: var(--md-text-main);
+            line-height: 1.1;
+        }
+
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: none;
+            background: transparent; color: var(--md-primary); opacity: 0.9;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            margin-top: 4px;
+        }
+        .icon-btn svg { width: 20px; height: 20px; }
+        .icon-btn:active { background-color: rgba(226, 232, 240, 0.1); }
+
+        .pixel-chip {
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+            border-radius: 100px; font-size: 11px; font-weight: 700;
+            background-color: rgba(226, 232, 240, 0.05); border: 1px solid var(--md-border);
+            text-transform: uppercase; margin-top: 4px;
+        }
+        .pulse-dot { width: 6px; height: 6px; background-color: var(--md-online); border-radius: 50%; }
+        .pulse-dot.offline { background-color: var(--md-offline); }
+
+        .banner-stage {
+            position: relative; width: 100%; height: 180px; border-radius: 16px;
+            overflow: hidden; border: 1px solid var(--md-border);
+            background: #1E212A;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .banner-image { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .banner-placeholder { color: var(--md-text-muted); font-size: 13px; z-index: 1; font-weight: 500; }
+        .banner-action {
+            position: absolute; bottom: 12px; right: 12px;
+            background: rgba(20, 22, 29, 0.85); color: #FFF; padding: 6px 14px;
+            border-radius: 100px; font-size: 11px; font-weight: 600; cursor: pointer;
+            backdrop-filter: blur(4px); border: 1px solid var(--md-border); z-index: 2;
+        }
+
+        .pixel-card {
+            background-color: var(--md-card); border-radius: 16px;
+            padding: 24px; border: 1px solid var(--md-border);
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .section-title { font-size: 14px; font-weight: 600; opacity: 0.7; letter-spacing: 0.2px; }
+
+        .row { display: flex; justify-content: space-between; align-items: center; }
+        .info-block { max-width: 75%; }
+        .info-block h3 { font-size: 16px; font-weight: 500; }
+        .info-block p { font-size: 12px; color: var(--md-text-muted); line-height: 1.5; }
+
+        .matrix-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 12px; border-bottom: 1px solid rgba(45, 50, 63, 0.6);
+        }
+        .matrix-row:last-child { border: none; padding-bottom: 0; }
+        .matrix-label-group { display: flex; align-items: center; gap: 14px; }
+        .matrix-label-group svg { width: 22px; height: 22px; fill: var(--md-text-muted); }
+        .matrix-label { font-size: 13px; font-weight: 500; color: var(--md-text-muted); }
+        .matrix-value { font-size: 14px; font-weight: 600; max-width: 55%; text-align: right; word-break: break-all; }
+
+        .switch { position: relative; width: 50px; height: 30px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #242731; border: 2px solid #4A5164; transition: .2s; border-radius: 100px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px;
+            left: 5px; bottom: 5px; background-color: #94A3B8; transition: .2s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--md-primary); border-color: var(--md-primary); }
+        input:checked + .slider:before { transform: translateX(18px); background-color: var(--md-card); height: 18px; width: 18px; left: 4px; bottom: 4px; }
+
+        .pixel-slider-box { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .range-input-fixed {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 14px;
+            border-radius: 100px; outline: none; cursor: pointer;
+            background: linear-gradient(to right, var(--md-primary) var(--percent, 100%), var(--md-track-bg) var(--percent, 100%));
+        }
+        .range-input-fixed::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 4px; height: 14px;
+            background-color: var(--md-card); box-shadow: 0 0 3px rgba(0,0,0,0.5);
+        }
+
+        .badge-value { font-size: 13px; font-weight: 600; background: rgba(248, 250, 252, 0.05); padding: 4px 12px; border-radius: 100px; border: 1px solid var(--md-border); flex-shrink: 0; }
+
+        .btn-danger-action { background-color: var(--md-danger-container); color: var(--md-danger); border: 1px solid rgba(252, 165, 165, 0.1); padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600; width: 100%; margin-top: 12px; cursor: pointer; }
+        
+        #pixelSnackbar {
+            visibility: hidden; background-color: var(--md-card); color: var(--md-text-main);
+            border: 1px solid var(--md-border); padding: 14px 24px; border-radius: 100px;
+            position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(12px);
+            opacity: 0; transition: 0.2s; font-size: 14px; font-weight: 500; z-index: 9999;
+        }
+        #pixelSnackbar.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <main id="homeView" class="page-view active">
+        <header class="top-app-bar">
+            <div class="brand-wrapper">
+                <img class="chibi-logo" src="assets/march_chibi.png" id="chibiIcon" alt="M7">
+                <div class="brand-title">
+                    <h1>March</h1>
+                    <div class="pixel-chip">
+                        <div class="pulse-dot" id="statusDot"></div>
+                        <span id="statusTxt">Active</span>
+                    </div>
+                </div>
+            </div>
+            <button class="icon-btn" onclick="switchView('settingsView')">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.47,5.32 14.87,5.07L14.49,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.51,2.42L9.13,5.07C8.53,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,13L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.53,18.68 9.13,18.93L9.51,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.49,21.58L14.87,18.93C15.47,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>
+            </button>
+        </header>
+
+        <div class="banner-stage" id="bannerStage">
+            <span class="banner-placeholder" id="bannerPlaceholder">Belum ada banner dipilih</span>
+            <img id="bannerImg" class="banner-image" style="display:none;">
+            <label class="banner-action"><span>Ubah Banner</span><input type="file" accept="image/*" style="display:none;" onchange="handleBannerUpdate(this)"></label>
+        </div>
+
+        <section class="pixel-card">
+            <h2 class="section-title">Tentang Perangkat</h2>
+            <div class="matrix-row"><div class="matrix-label-group"><svg viewBox="0 0 24 24"><path d="M17,19H7V5H17M17,1H7C5.89,1 5,1.89 5,3V21A2,2 0 0,0 7,23H17A2,2 0 0,0 19,21V3C19,1.89 18.1,1 17,1Z"/></svg><span class="matrix-label">Nama</span></div><span class="matrix-value" id="infoName">Loading...</span></div>
+            <div class="matrix-row"><div class="matrix-label-group"><svg viewBox="0 0 24 24"><path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/></svg><span class="matrix-label">Model</span></div><span class="matrix-value" id="infoModel">Loading...</span></div>
+            <div class="matrix-row"><div class="matrix-label-group"><svg viewBox="0 0 24 24"><path d="M15,5L15.57,3.4C15.68,3.1 15.53,2.77 15.23,2.65C14.93,2.54 14.6,2.69 14.47,3L13.78,4.86C12.6,4.35 11.32,4.36 10.15,4.86L9.46,3C9.33,2.7 9,2.55 8.7,2.67C8.4,2.79 8.26,3.12 8.37,3.42L8.94,5C6.44,6.42 4.75,9.08 4.5,12.21H19.43C19.18,9.08 17.5,6.42 15,5M8.5,9.5A0.5,0.5 0 0,1 8,9A0.5,0.5 0 0,1 8.5,8.5A0.5,0.5 0 0,1 9,9A0.5,0.5 0 0,1 8.5,9.5M15.5,9.5A0.5,0.5 0 0,1 15,9A0.5,0.5 0 0,1 15.5,8.5A0.5,0.5 0 0,1 16,9A0.5,0.5 0 0,1 15.5,9.5Z"/></svg><span class="matrix-label">Android</span></div><span class="matrix-value" id="infoAndroid">Loading...</span></div>
+            <div class="matrix-row"><div class="matrix-label-group"><svg viewBox="0 0 24 24"><path d="M15,9H9V15H15V9M13,13H11V11H13V13M19,15V13H21V11H19V9H21V7H19V5H17V3H15V5H13V3H11V5H9V3H7V5H5V7H3V9H5V11H3V13H5V15H3V17H5V19H7V21H9V19H11V21H13V19H15V21H17V19H19V17H21V15H19Z"/></svg><span class="matrix-label">Kernel</span></div><span class="matrix-value" id="infoKernel">Loading...</span></div>
+        </section>
+
+        <section class="pixel-card">
+            <h2 class="section-title">Automation</h2>
+            <div class="row"><div class="info-block"><h3>Flow State Mode</h3><p>Stabilitas thread dinamis.</p></div><label class="switch"><input type="checkbox" id="tglFlow" onchange="toggleTweak('flow_state', this)"><span class="slider"></span></label></div>
+            <div class="row"><div class="info-block"><h3>Smart Sleep & Cleanse</h3><p>Freeze background task.</p></div><label class="switch"><input type="checkbox" id="tglSleep" onchange="toggleTweak('smart_sleep', this)"><span class="slider"></span></label></div>
+            <div class="row"><div class="info-block"><h3>Smart Thermal Sync</h3><p>Manajemen suhu sistem.</p></div><label class="switch"><input type="checkbox" id="tglThermal" onchange="toggleTweak('thermal_sync', this)"><span class="slider"></span></label></div>
+        </section>
+
+        <section class="pixel-card">
+            <h2 class="section-title">Hardware Performance</h2>
+            <div class="row"><div class="info-block"><h3>CPU Capacity Cap</h3><p>Batas frekuensi core cluster.</p></div><div class="badge-value" id="cpuBadge">100%</div></div>
+            <div class="pixel-slider-box">
+                <input type="range" class="range-input-fixed" id="cpuSlider" min="40" max="100" value="100" step="10" oninput="slideVisualUpdate(this.value)" onchange="slideExecutionUpdate(this.value)">
+            </div>
+        </section>
+    </main>
+
+    <main id="settingsView" class="page-view">
+        <header class="top-app-bar">
+            <button class="icon-btn" onclick="switchView('homeView')"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+            <h1 style="font-family: 'Product Sans', sans-serif; font-size: 20px; flex-grow: 1; margin-left: 12px;">Pengaturan</h1>
+        </header>
+        <section class="pixel-card">
+            <div class="row"><div class="info-block"><h3>Apply on Boot</h3><p>Restore config saat menyala.</p></div><label class="switch"><input type="checkbox" id="tglBoot" onchange="toggleTweak('apply_on_boot', this)"><span class="slider"></span></label></div>
+            <button class="btn-danger-action" onclick="executeReset()">Reset Modul</button>
+        </section>
+    </main>
+</div>
+
+<div id="pixelSnackbar">Notification</div>
+
+<script>
+const MODDIR = "/data/adb/modules/march";
+const IS_CONNECTED = typeof ksu !== 'undefined' || typeof $mmrl !== 'undefined';
+
+const Shell = {
+    run: async (action, value = '') => {
+        const cmd = value 
+            ? `/data/adb/modules/march/action.sh ${action} ${value}` 
+            : `/data/adb/modules/march/action.sh ${action}`;
+            
+        try {
+            if (typeof ksu !== 'undefined') return await ksu.exec(cmd);
+            if (typeof $mmrl !== 'undefined') return await $mmrl.exec(cmd);
+        } catch (e) {
+            console.error(e);
+        }
+        return '';
+    }
+};
+
+window.onload = function() {
+    loadSavedBanner();
+    fetchDeviceProperties();
+    syncAllStates();
+};
+
+async function fetchDeviceProperties() {
+    if (!IS_CONNECTED) {
+        document.getElementById('statusDot').classList.add('offline');
+        document.getElementById('statusTxt').innerText = "Offline";
+        document.getElementById('infoName').innerText = "March Device (Dev Mode)";
+        document.getElementById('infoModel').innerText = "SM-M777";
+        document.getElementById('infoAndroid').innerText = "Android 14";
+        document.getElementById('infoKernel').innerText = "5.10.x-march";
+        return;
+    }
+
+    const nameVal = (await Shell.run('get_name')).trim();
+    const modelVal = (await Shell.run('get_model')).trim();
+    const androidVal = (await Shell.run('get_android')).trim();
+    const kernelVal = (await Shell.run('get_kernel')).trim();
+
+    if (nameVal) document.getElementById('infoName').innerText = nameVal;
+    if (modelVal) document.getElementById('infoModel').innerText = modelVal;
+    
+    if (androidVal) {
+        document.getElementById('infoAndroid').innerText = 
+            androidVal.toLowerCase().includes('android') ? androidVal : 'Android ' + androidVal;
+    }
+    if (kernelVal) document.getElementById('infoKernel').innerText = kernelVal;
+}
+
+async function syncAllStates() {
+    if (!IS_CONNECTED) return;
+
+    const toggles = {
+        tglFlow:    'flow_state',
+        tglSleep:   'smart_sleep',
+        tglThermal: 'thermal_sync',
+        tglBoot:    'apply_on_boot',
+    };
+
+    for (const [elId, confName] of Object.entries(toggles)) {
+        const state = (await Shell.run('check_state', confName).catch(() => 'off')).trim();
+        const el = document.getElementById(elId);
+        if (el) el.checked = (state === 'on');
+    }
+
+    const cpuVal = (await Shell.run('check_state', 'cpu_limit').catch(() => '100')).trim();
+    const parsed = parseInt(cpuVal);
+    if (!isNaN(parsed) && parsed >= 40 && parsed <= 100) {
+        document.getElementById('cpuSlider').value = parsed;
+    }
+    slideVisualUpdate(document.getElementById('cpuSlider').value);
+}
+
+async function toggleTweak(action, el) {
+    await Shell.run(action, el.checked ? 'on' : 'off');
+    triggerSnackbar(`${action.replace(/_/g, ' ')} ${el.checked ? 'ON' : 'OFF'}`);
+}
+
+function slideVisualUpdate(val) {
+    const percent = ((val - 40) / 60) * 100;
+    const slider = document.getElementById('cpuSlider');
+    slider.style.setProperty('--percent', percent + '%');
+    document.getElementById('cpuBadge').innerText = val + '%';
+}
+
+async function slideExecutionUpdate(val) {
+    await Shell.run('limit_cpu', val);
+    triggerSnackbar(`CPU Cap: ${val}%`);
+}
+
+function handleBannerUpdate(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.getElementById('bannerImg');
+            const placeholder = document.getElementById('bannerPlaceholder');
+            
+            img.src = e.target.result;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            localStorage.setItem('march_banner_native', e.target.result);
+            triggerSnackbar("Banner Berhasil Diubah!");
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function loadSavedBanner() {
+    const savedData = localStorage.getItem('march_banner_native');
+    const img = document.getElementById('bannerImg');
+    const placeholder = document.getElementById('bannerPlaceholder');
+    
+    if (savedData) {
+        img.src = savedData;
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+    } else {
+        img.src = 'assets/banner_default.png';
+        img.style.display = 'block';
+        placeholder.style.display = 'none';
+    }
+}
+
+function switchView(id) {
+    document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function triggerSnackbar(msg) {
+    const b = document.getElementById('pixelSnackbar');
+    b.innerText = msg;
+    b.classList.add('show');
+    setTimeout(() => b.classList.remove('show'), 2000);
+}
+
+async function executeReset() {
+    await Shell.run('reset');
+    localStorage.removeItem('march_banner_native');
+    location.reload();
+}
+</script>
+</body>
+</html>
